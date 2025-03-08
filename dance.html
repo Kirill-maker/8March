@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>С 8 Марта! - Танец</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Кнопка выхода из аккаунта -->
+  <div class="logout-button">
+    <a href="index.html" title="Выйти из аккаунта">Выйти</a>
+  </div>
+
+  <div class="dance-container">
+    <h1 class="dance-title">Дарите женщинам цветы! 💐</h1>
+    <canvas id="mazeCanvas" style="display: none;"></canvas>
+    <div id="congratsModal" class="modal">
+      <div class="modal-content">
+        <h2>Поздравляем! 🎉</h2>
+        <p>Ты успешно прошла лабиринт!Твоя награда: 3 просьбы адресованные Кириллу(если вы используете просьбу(абсолютно любая и относящая только к тебе), то Кирилл обязан будет ее выполнить) </p>
+        <button id="closeModal">Закрыть</button>
+      </div>
+    </div>
+    <div class="dance-stage" id="dance-stage">
+    
+      
+     
+      <div class="spotify-lyrics-container">
+        <div class="lyrics-line prev-line" id="prev-line"></div>
+        <div class="lyrics-line current-line" id="current-line"></div>
+        <div class="lyrics-line next-line" id="next-line"></div>
+      </div>
+    </div>
+    
+  
+    <audio id="song" preload="auto">
+      <source src="music/mom_music.mp3" type="audio/mpeg">
+      Ваш браузер не поддерживает аудио-элемент.
+    </audio>
+    
+    <div class="audio-controls">
+      <button id="play-pause">▶️ Воспроизвести</button>
+      <button id="back-button">🔙 Назад к открытке</button>
+    </div>
+  </div>
+  
+  <script>
+    const mazeConfig = {
+      cols: 17,
+      rows: 17,
+      cellSize: 25,
+      exitColor: '#e67da2',
+      playerColor: '#ff69b4',
+      wallColor: '#2c0b1a'
+    };
+
+    const mazeCanvas = document.getElementById('mazeCanvas');
+    const ctx = mazeCanvas.getContext('2d');
+    let maze = [];
+    let player = {x: 1, y: 1};
+
+   
+    function generateMaze() {
+      maze = Array(mazeConfig.rows).fill().map(() => 
+        Array(mazeConfig.cols).fill(true));
+      
+      const stack = [];
+      const visit = (x, y) => {
+        maze[y][x] = false;
+        const dirs = shuffle([[1,0],[-1,0],[0,1],[0,-1]]);
+        
+        dirs.forEach(([dx, dy]) => {
+          const nx = x + dx*2, ny = y + dy*2;
+          if (nx > 0 && nx < mazeConfig.cols-1 && 
+              ny > 0 && ny < mazeConfig.rows-1 && maze[ny][nx]) {
+            maze[y + dy][x + dx] = false;
+            visit(nx, ny);
+          }
+        });
+      };
+      
+      visit(1, 1);
+      maze[mazeConfig.rows-2][mazeConfig.cols-2] = false;
+    }
+
+    function drawMaze() {
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, mazeCanvas.width, mazeCanvas.height);
+
+      ctx.fillStyle = mazeConfig.wallColor;
+      for(let y = 0; y < mazeConfig.rows; y++) {
+        for(let x = 0; x < mazeConfig.cols; x++) {
+          if(maze[y][x]) {
+            ctx.fillRect(
+              x * mazeConfig.cellSize, 
+              y * mazeConfig.cellSize, 
+              mazeConfig.cellSize, 
+              mazeConfig.cellSize
+            );
+          }
+        }
+      }
+      
+     
+      ctx.fillStyle = mazeConfig.exitColor;
+      ctx.fillRect(
+        (mazeConfig.cols-2) * mazeConfig.cellSize + 4,
+        (mazeConfig.rows-2) * mazeConfig.cellSize + 4,
+        mazeConfig.cellSize - 8,
+        mazeConfig.cellSize - 8
+      );
+      
+    
+      ctx.fillStyle = mazeConfig.playerColor;
+      ctx.beginPath();
+      ctx.arc(
+        (player.x + 0.5) * mazeConfig.cellSize,
+        (player.y + 0.5) * mazeConfig.cellSize,
+        mazeConfig.cellSize/3, 0, Math.PI*2
+      );
+      ctx.fill();
+    }
+
+   
+    document.addEventListener('keydown', (e) => {
+      if(document.getElementById('congratsModal').style.display === 'block') return;
+      
+      const moves = {
+        ArrowUp: {x:0, y:-1},
+        ArrowDown: {x:0, y:1},
+        ArrowLeft: {x:-1, y:0},
+        ArrowRight: {x:1, y:0}
+      };
+      
+      const move = moves[e.key];
+      if(!move) return;
+      
+      const newX = player.x + move.x;
+      const newY = player.y + move.y;
+      
+      if(newX >= 0 && newX < mazeConfig.cols && 
+        newY >= 0 && newY < mazeConfig.rows &&
+        !maze[newY][newX]) {
+        player.x = newX;
+        player.y = newY;
+        drawMaze();
+        
+  
+        if(player.x === mazeConfig.cols-2 && player.y === mazeConfig.rows-2) {
+          document.getElementById('congratsModal').style.display = 'block';
+        }
+      }
+    });
+
+   
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+ 
+    setTimeout(() => {
+      mazeCanvas.style.display = 'block';
+      mazeCanvas.width = mazeConfig.cols * mazeConfig.cellSize;
+      mazeCanvas.height = mazeConfig.rows * mazeConfig.cellSize;
+      generateMaze();
+      drawMaze();
+    }, 1000);
+
+    
+    document.getElementById('closeModal').addEventListener('click', () => {
+      document.getElementById('congratsModal').style.display = 'none';
+      mazeCanvas.style.display = 'none';
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+    
+      const danceStage = document.getElementById('dance-stage');
+      const stickmenCount = 8; 
+      
+      
+      document.querySelector('.spotify-lyrics-container').style.opacity = '0';
+      
+     
+      function createStickman(index) {
+        const stickman = document.createElement('div');
+        stickman.classList.add('stickman');
+        
+       
+        const position = (index + 1) * (100 / (stickmenCount + 1));
+        stickman.style.left = `${position}%`;
+        stickman.style.bottom = '40%'; 
+        
+       
+        const color = getRandomColor();
+        
+        
+        stickman.innerHTML = `
+          <svg viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Голова -->
+            <circle cx="50" cy="30" r="20" fill="${color}" />
+            <!-- Тело -->
+            <line x1="50" y1="50" x2="50" y2="120" stroke="${color}" stroke-width="4" />
+            <!-- Руки -->
+            <line x1="50" y1="70" x2="20" y2="90" stroke="${color}" stroke-width="4" />
+            <line x1="50" y1="70" x2="80" y2="90" stroke="${color}" stroke-width="4" />
+            <!-- Ноги -->
+            <line x1="50" y1="120" x2="30" y2="180" stroke="${color}" stroke-width="4" />
+            <line x1="50" y1="120" x2="70" y2="180" stroke="${color}" stroke-width="4" />
+          </svg>
+        `;
+        
+       
+        stickman.style.animation = "simpleDance 3s infinite alternate";
+        stickman.style.animationDelay = `${Math.random() * 2}s`;
+        
+        return stickman;
+      }
+      
+      
+      function getRandomColor() {
+        const colors = [
+          '#FF69B4', 
+          '#FF1493', 
+          '#C71585', 
+          '#DB7093', 
+          '#E6007E', 
+          '#FF007F', 
+          '#FF77FF', 
+          '#FF66CC'  
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+      }
+      
+     
+      for (let i = 0; i < stickmenCount; i++) {
+        danceStage.appendChild(createStickman(i));
+      }
+      
+     
+    
+      
+    
+      const prevLineElement = document.getElementById('prev-line');
+      const currentLineElement = document.getElementById('current-line');
+      const nextLineElement = document.getElementById('next-line');
+      
+      
+      const audio = document.getElementById('song');
+      const playPauseButton = document.getElementById('play-pause');
+      const backButton = document.getElementById('back-button');
+      
+      
+      playPauseButton.addEventListener('click', function() {
+        if (audio.paused) {
+          audio.play();
+          playPauseButton.textContent = '⏸️ Пауза';
+          
+          danceStage.classList.add('music-playing');
+        } else {
+          audio.pause();
+          playPauseButton.textContent = '▶️ Воспроизвести';
+          danceStage.classList.remove('music-playing');
+        }
+      });
+      
+      
+      backButton.addEventListener('click', function() {
+        window.location.href = 'greeting.html';
+      });
+      
+   
+      audio.play().catch(e => {
+        console.log('Автоматическое воспроизведение предотвращено браузером. Нажмите кнопку для воспроизведения.');
+      });
+      
+      
+      audio.addEventListener('play', function() {
+        playPauseButton.textContent = '⏸️ Пауза';
+        danceStage.classList.add('music-playing');
+        
+        
+        document.querySelector('.spotify-lyrics-container').style.opacity = '0';
+        setTimeout(() => {
+          document.querySelector('.spotify-lyrics-container').style.opacity = '1';
+          document.querySelector('.spotify-lyrics-container').style.transition = 'opacity 1s ease';
+        }, 1500); 
+      });
+      
+      
+      audio.addEventListener('timeupdate', function() {
+        const currentTime = audio.currentTime;
+        
+        
+        if (currentTime < 1.0) return;
+        
+        
+        let currentIndex = songLyricsWithTimestamps.findIndex((lyric, index, array) => {
+          const nextLyric = array[index + 1];
+          return currentTime >= lyric.time && (!nextLyric || currentTime < nextLyric.time);
+        });
+        
+        if (currentIndex !== -1) {
+          
+          const prevIndex = Math.max(0, currentIndex - 1);
+          const nextIndex = Math.min(songLyricsWithTimestamps.length - 1, currentIndex + 1);
+          
+          const prevText = currentIndex > 0 ? songLyricsWithTimestamps[prevIndex].text : "";
+          const currentText = songLyricsWithTimestamps[currentIndex].text;
+          const nextText = currentIndex < songLyricsWithTimestamps.length - 1 ? songLyricsWithTimestamps[nextIndex].text : "";
+          
+          
+          if (currentLineElement.textContent !== currentText) {
+           
+            prevLineElement.textContent = prevText;
+            currentLineElement.textContent = currentText;
+            nextLineElement.textContent = nextText;
+            
+            
+            currentLineElement.classList.add('highlight-animation');
+            setTimeout(() => {
+              currentLineElement.classList.remove('highlight-animation');
+            }, 300);
+          }
+          
+         
+          const beatCount = Math.floor(currentTime * 2);
+          if (beatCount % 4 === 0) {
+            document.querySelectorAll('.stickman').forEach(stickman => {
+              stickman.classList.add('beat-accent');
+              setTimeout(() => stickman.classList.remove('beat-accent'), 250);
+            });
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html> 

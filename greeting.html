@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>С 8 Марта! - Поздравление</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+</head>
+<body>
+ 
+  <div class="logout-button">
+    <a href="index.html" title="Выйти из аккаунта">Выйти</a>
+  </div>
+
+
+  <div class="petals-container"></div>
+  
+  
+  <div class="envelope">
+    <div class="envelope-flap"></div>
+    <div class="envelope-content">
+      <div class="greeting-container">
+        <div class="greeting-text">
+          <div id="typed-strings">
+            <span></span>
+          </div>
+          <div class="greeting-message">
+            <span id="typed"></span>
+          </div>
+          <div class="greeting-signature"></div>
+        </div>
+        <div class="greeting-photo">
+          <div class="greeting-photo-carousel" id="photo-carousel">
+          
+          </div>
+        </div>
+      </div>
+      
+     
+      <div class="next-button-container">
+        <button id="next-button" class="next-button hidden">Далее →</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    
+      const userData = JSON.parse(localStorage.getItem('currentUser'));
+      if (!userData) {
+        
+        window.location.href = 'index.html';
+        return;
+      }
+      
+   
+      document.querySelector('#typed-strings span').textContent = userData.greeting;
+      
+     
+      new Typed('#typed', {
+        stringsElement: '#typed-strings',
+        typeSpeed: 50,        
+        startDelay: 1500,     
+        showCursor: true,   
+        cursorChar: '|',    
+        onComplete: (self) => {
+        
+          document.querySelector('.greeting-signature').textContent = userData.from;
+          
+       
+          setTimeout(showNextButton, 5000); 
+        }
+      });
+      
+    
+      const carouselContainer = document.getElementById('photo-carousel');
+      const baseImagePath = userData.photo.substring(0, userData.photo.lastIndexOf('.'));
+      const extension = userData.photo.substring(userData.photo.lastIndexOf('.'));
+      
+     
+      const imageUrls = [
+        userData.photo,
+        `${baseImagePath}_2${extension}`,
+        `${baseImagePath}_3${extension}`,
+        `${baseImagePath}_4${extension}`,
+        `${baseImagePath}_5${extension}`
+      ];
+      
+    
+      imageUrls.forEach((url, index) => {
+        const item = document.createElement('div');
+        item.className = 'carousel-item' + (index === 0 ? ' active' : '');
+        
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = `Фото ${index + 1}`;
+        
+       
+        img.onerror = function() {
+
+          this.src = userData.photo;
+        };
+        
+        item.appendChild(img);
+        carouselContainer.appendChild(item);
+      });
+      
+     
+      function rotateCarousel() {
+        const items = document.querySelectorAll('.carousel-item');
+        const activeItem = document.querySelector('.carousel-item.active');
+        const nextItem = activeItem.nextElementSibling || items[0];
+        
+      
+        nextItem.classList.add('active');
+        nextItem.style.zIndex = "1";
+        
+       
+        activeItem.style.zIndex = "0";
+        setTimeout(() => {
+          activeItem.classList.remove('active');
+        }, 1000); 
+      }
+      
+    
+      let carouselInterval = setInterval(rotateCarousel, 4000);
+      
+     
+      function showNextButton() {
+        const nextButton = document.getElementById('next-button');
+        nextButton.classList.remove('hidden');
+        nextButton.classList.add('show-button');
+        
+  
+        nextButton.addEventListener('click', () => {
+ 
+          window.location.href = 'dance.html';
+        });
+      }
+      
+    
+      function createPetal() {
+        const petal = document.createElement('div');
+        petal.classList.add('petal');
+        
+        
+        petal.style.left = Math.random() * window.innerWidth + 'px';
+        
+       
+        const duration = 5 + Math.random() * 10;
+        petal.style.animationDuration = duration + 's';
+        
+       
+        petal.style.fontSize = (30 + Math.random() * 15) + 'px';
+        
+     
+        petal.style.transform = `rotate(${Math.random() * 360}deg)`;
+        
+       
+        const flowers = ['🌸', '🌷', '🌹', '💮', '🌺', '🌻', '🥀', '🌼', '🌿'];
+        petal.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+        
+     
+        petal.style.animationDelay = Math.random() * 5 + 's';
+        
+        return petal;
+      }
+      
+     
+      function createPetalsAnimation() {
+        const petalsContainer = document.querySelector('.petals-container');
+       
+        for (let i = 0; i < 70; i++) {
+          const petal = createPetal();
+          petalsContainer.appendChild(petal);
+        }
+      }
+      
+     
+      createPetalsAnimation();
+    });
+  </script>
+</body>
+</html> 

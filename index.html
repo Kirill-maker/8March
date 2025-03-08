@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>С 8 Марта! - Вход</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+</head>
+<body>
+  <div class="login-container">
+    <h1>С 8 Марта!</h1>
+    <p class="login-subtitle">Введите своё имя и пароль</p>
+    <form id="login-form">
+      <label for="username">Имя:</label>
+      <input type="text" id="username" name="username" placeholder="Введите имя" required>
+      <label for="password">Пароль:</label>
+      <input type="password" id="password" name="password" placeholder="Введите пароль" required>
+      <button type="submit">Войти</button>
+    </form>
+    <div id="error-message" class="error-message"></div>
+  </div>
+
+  <script>
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+  
+      const username = document.getElementById('username').value.toLowerCase().trim();
+      const password = document.getElementById('password').value;
+      
+     
+      const users = {
+        angelinochka: { password: 'Flugegeheimen', name: 'Angelinochka', 
+               greeting: 'Дорогая Ангелиночка! С 8 Марта — самым ярким праздником весны! Пусть твоя жизнь будет как волшебная сказка: поклонники, готовые носить тебя на руках, подарки, от которых сердце замирает, цветы роскошнее рассвета, и каждое утро начинается с завтрака в постель — макаруны, шампанское и ягоды в форме сердца! Ты заслуживаешь всего этого и даже больше! Наша дружба, пусть ей всего полгода, для меня уже стала чем-то особенным: ты умеешь находить радость в мелочах, заряжаешь энергией, как солнечная батарея, и всегда говоришь правду, даже если она смешная. Обещаю, что через годы мы будем такими же безумными — спорить о ерунде, смеяться до боли в животе и придумывать приключения, о которых потом будем вспоминать со слезами на глазах. Ты — человек, который делает мою жизнь ярче, и я очень ценю это. Пусть этот год подарит тебе столько счастья, как море капель в океане, а наши планы превратятся в истории, которые будем рассказывать друг другу до старости! С праздником, подруга! ',
+               photo: 'images/anna.jpg',
+               from: 'С любовью, Кирилл' },
+        яна: { password: '061106', name: 'Яна', 
+               greeting: 'Поздравляю с 8 Марта! Желаю  цветущего настроения, согревающего весеннего солнца, чтобы на душе было спокойно и тепло. Пусть все тревоги и невзгоды позабудутся, а ваши глаза никогда не знают печали. Пусть этот день подарит много улыбок и счастья, удивит приятными сюрпризами. Вы самая заботливая, красивая, добрая, внимательная и нежная. Оставайтесь такой всегда. Здоровья вам бесконечного и крепкого. Пусть все цветы мира расцветают для вас, а на лице всегда будет улыбка!', 
+               photo: 'images/olya.jpg',
+               from: 'С любовью,Кирилл' },
+        мамочка: { password: '130880', name: 'Мамочка', 
+                 greeting: 'Дорогая мамочка!С 8 Марта — самым нежным и светлым праздником! Пусть этот день станет началом года, наполненного здоровьем, которое будет крепким, как твоя любовь, радостью, которая зазвучит в каждом твоем дне, как весенняя капель, и теплом, что согревает сердце даже в самые хмурые моменты. Ты — мой ангел, мудрость, опора и самый близкий человек. Спасибо за бессонные ночи, когда ты шептала мне сказки, за руки, которые всегда меня ловили, и за улыбку, которая до сих пор лечит все мои печали. Пусть каждая твоя мечта найдёт путь к исполнению, а силы твои будут неиссякаемы, как океан! Обещаю, что мы всегда будем такими же — делиться секретами за чашкой чая, смеяться до слёз над старыми фотографиями и находить радость в мелочах, как в детстве. Ты — мой маяк, моя вселенная, и я бесконечно благодарен судьбе за то, что ты есть! С праздником, родная!', 
+                 photo: 'images/natasha.jpg',
+                 from: 'С любовью,Кирилл' },
+        бабушка: { password: 'katya', name: 'Катя', 
+               greeting: 'Дорогая Катя! Поздравляем с 8 марта! Пусть твоя жизнь будет яркой и красочной, а мечты сбываются!', 
+               photo: 'images/katya.jpg',
+               from: 'С любовью,Кирилл' }
+      };
+      
+      
+      if (users[username] && users[username].password === password) {
+       
+        localStorage.setItem('currentUser', JSON.stringify({
+          name: users[username].name,
+          greeting: users[username].greeting,
+          photo: users[username].photo,
+          from: users[username].from
+        }));
+        
+        
+        window.location.href = 'greeting.html';
+      } else {
+      
+        document.getElementById('error-message').textContent = 'Неверное имя или пароль!';
+      }
+    });
+  </script>
+</body>
+</html> 
